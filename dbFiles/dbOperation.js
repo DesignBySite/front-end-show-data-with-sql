@@ -2,11 +2,11 @@ const config        = require('./dbConfig'),
       sql           = require('mssql');
 
 
-const getEmployees = async() => {
+const getEmployees = async(firstname) => {
   try {
     let pool = await sql.connect(config);
-    let employees = pool.request().query("SELECT * from EmployeeDemographics");
-    // console.log('Employees: ', employees);
+    let employees = await pool.request().query(`SELECT * from EmployeeDemographics WHERE Firstname = '${firstname}'`);
+    console.log('Employees: ', employees);
     return employees;
   }
   catch (err) {
@@ -16,10 +16,10 @@ const getEmployees = async() => {
 const createEmployee = async(Employee) => {
   try {
     let pool = await sql.connect(config);
-    let employees = pool.request()
+    let employees = await pool.request()
     .query(`INSERT INTO EmployeeDemographics VALUES
-    (${Employee.EmployeeID}, '${Employee.Firstname}', '${Employee.Lastname}', ${Employee.Age}, '${Employee.Gender}')`);
-    // console.log('Employees: ', employees);
+    (${parseInt(Employee.EmployeeID)}, '${Employee.Firstname}', '${Employee.Lastname}', ${parseInt(Employee.Age)}, '${Employee.Gender}')`);
+    console.log('Employees: ', Employee);
     return employees;
   }
   catch (err) {
@@ -28,8 +28,9 @@ const createEmployee = async(Employee) => {
 }
 
 const createThenGet = async(Employee) => {
-  await createEmployee(Employee)
-  await getEmployees();
+  const newEmployee = await createEmployee(Employee)
+  console.log(Employee);
+  await getEmployees(Employee.Firstname);
 }
 
 module.exports = {
